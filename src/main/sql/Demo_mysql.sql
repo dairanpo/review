@@ -1,0 +1,6 @@
+
+DROP TABLE IF EXISTS `demo`;
+CREATE TABLE `demo` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,-- here
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

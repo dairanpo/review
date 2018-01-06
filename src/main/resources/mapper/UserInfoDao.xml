@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tobetek.review.dao.UserInfoDao">
+	<!-- 目的：为dao接口方法提供sql语句配置 -->
+	<select id="get" resultType="com.tobetek.review.entity.UserInfo" parameterType="long">
+		<!-- 具体的sql -->
+		SELECT	* FROM	user_info WHERE id = #{id}
+	</select>
+	
+	<!-- 对应userDao中的insertUser方法，  -->
+   <insert id="persist" keyProperty="id" parameterType="com.tobetek.review.entity.UserInfo">
+	   insert into user_info
+	   <trim prefix="(" suffix=")" suffixOverrides="," >
+		   	<if test="id != null" >
+	        	id,
+	      	</if>
+		   	<if test="nickName != null" >
+				nick_name,
+			</if><if test="levelId != null" >
+				level_id,
+			</if><if test="levelName != null" >
+				level_name,
+			</if><if test="imgUrl != null" >
+				img_url,
+			</if><if test="isVip != null" >
+				is_vip,
+			</if>
+   		</trim>
+   		<trim prefix="values (" suffix=")" suffixOverrides="," >
+		   <if test="id != null" >
+		     #{id,jdbcType=INTEGER},
+		   </if>
+		   <if test="nickName != null" >
+				#{nickName,jdbcType=VARCHAR},
+			</if><if test="levelId != null" >
+				#{levelId,jdbcType=VARCHAR},
+			</if><if test="levelName != null" >
+				#{levelName,jdbcType=VARCHAR},
+			</if><if test="imgUrl != null" >
+				#{imgUrl,jdbcType=VARCHAR},
+			</if><if test="isVip != null" >
+				#{isVip,jdbcType=VARCHAR},
+			</if>
+   		</trim>
+   </insert>
+	
+</mapper>

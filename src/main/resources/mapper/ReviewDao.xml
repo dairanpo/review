@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tobetek.review.dao.ReviewDao">
+	<!-- 目的：为dao接口方法提供sql语句配置 -->
+	<select id="get" resultType="com.tobetek.review.entity.Review" parameterType="long">
+		<!-- 具体的sql -->
+		SELECT	* FROM	review WHERE id = #{id}
+	</select>
+	
+	<!-- 对应userDao中的insertUser方法，  -->
+   <insert id="persist" keyProperty="id" parameterType="com.tobetek.review.entity.Review">
+	   insert into review
+	   <trim prefix="(" suffix=")" suffixOverrides="," >
+		   	<if test="id != null" >
+	        	id,
+	      	</if>
+		   	<if test="bestTag != null" >
+				best_tag,
+			</if><if test="commodityReviewId != null" >
+				commodity_review_id,
+			</if><if test="content != null" >
+				content,
+			</if><if test="publishTime != null" >
+				publish_time,
+			</if><if test="deviceType != null" >
+				device_type,
+			</if><if test="sourceSystem != null" >
+				source_system,
+			</if><if test="anonFlag != null" >
+				anon_flag,
+			</if><if test="userInfoId != null" >
+				user_info_id,
+			</if><if test="qualityStar != null" >
+				quality_star,
+			</if><if test="bestFlag != null" >
+				best_flag,
+			</if><if test="shopInfoId != null" >
+				shop_info_id,
+			</if><if test="picVideoFlag != null" >
+				pic_video_flag,
+			</if><if test="contentLength != null" >
+				content_length,
+			</if><if test="commodityInfoId != null" >
+				commodity_info_id,
+			</if><if test="againFlag != null" >
+				again_flag,
+			</if><if test="score != null" >
+				score,
+			</if><if test="usefulCnt != null" >
+				useful_cnt,
+			</if><if test="replyFlag != null" >
+				reply_flag,
+			</if><if test="isShowReviewDetail != null" >
+				is_show_review_detail,
+			</if><if test="styleId != null" >
+				style_id,
+			</if><if test="groupId != null" >
+				group_id,
+			</if><if test="againReviewImgFlag != null" >
+				again_review_img_flag,
+			</if><if test="voiceFlag != null" >
+				voice_flag,
+			</if><if test="smallVideoFlag != null" >
+				small_video_flag,
+			</if><if test="returnCode != null" >
+				return_code,
+			</if><if test="returnMsg != null" >
+				return_msg,
+			</if>
+   		</trim>
+   		<trim prefix="values (" suffix=")" suffixOverrides="," >
+		   <if test="id != null" >
+		     #{id,jdbcType=INTEGER},
+		   </if>
+		   <if test="bestTag != null" >
+				#{bestTag,jdbcType=VARCHAR},
+			</if><if test="commodityReviewId != null" >
+				#{commodityReviewId,jdbcType=VARCHAR},
+			</if><if test="content != null" >
+				#{content,jdbcType=VARCHAR},
+			</if><if test="publishTime != null" >
+				#{publishTime,jdbcType=VARCHAR},
+			</if><if test="deviceType != null" >
+				#{deviceType,jdbcType=VARCHAR},
+			</if><if test="sourceSystem != null" >
+				#{sourceSystem,jdbcType=VARCHAR},
+			</if><if test="anonFlag != null" >
+				#{anonFlag,jdbcType=VARCHAR},
+			</if><if test="userInfoId != null" >
+				#{userInfoId,jdbcType=INTEGER},
+			</if><if test="qualityStar != null" >
+				#{qualityStar,jdbcType=VARCHAR},
+			</if><if test="bestFlag != null" >
+				#{bestFlag,jdbcType=VARCHAR},
+			</if><if test="shopInfoId != null" >
+				#{shopInfoId,jdbcType=INTEGER},
+			</if><if test="picVideoFlag != null" >
+				#{picVideoFlag,jdbcType=VARCHAR},
+			</if><if test="contentLength != null" >
+				#{contentLength,jdbcType=VARCHAR},
+			</if><if test="commodityInfoId != null" >
+				#{commodityInfoId,jdbcType=INTEGER},
+			</if><if test="againFlag != null" >
+				#{againFlag,jdbcType=VARCHAR},
+			</if><if test="score != null" >
+				#{score,jdbcType=VARCHAR},
+			</if><if test="usefulCnt != null" >
+				#{usefulCnt,jdbcType=VARCHAR},
+			</if><if test="replyFlag != null" >
+				#{replyFlag,jdbcType=VARCHAR},
+			</if><if test="isShowReviewDetail != null" >
+				#{isShowReviewDetail,jdbcType=VARCHAR},
+			</if><if test="styleId != null" >
+				#{styleId,jdbcType=VARCHAR},
+			</if><if test="groupId != null" >
+				#{groupId,jdbcType=VARCHAR},
+			</if><if test="againReviewImgFlag != null" >
+				#{againReviewImgFlag,jdbcType=VARCHAR},
+			</if><if test="voiceFlag != null" >
+				#{voiceFlag,jdbcType=VARCHAR},
+			</if><if test="smallVideoFlag != null" >
+				#{smallVideoFlag,jdbcType=VARCHAR},
+			</if><if test="returnCode != null" >
+				#{returnCode,jdbcType=VARCHAR},
+			</if><if test="returnMsg != null" >
+				#{returnMsg,jdbcType=VARCHAR},
+			</if>
+   		</trim>
+   </insert>
+	
+</mapper>
