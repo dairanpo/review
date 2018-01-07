@@ -1,7 +1,5 @@
 package com.tobetek.review.web;
 
-import java.util.Map.Entry;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -44,13 +42,29 @@ public class DemoController {
 	}
 
     @RequestMapping(value="/forsave")
-	public String forSave(){
-		for(int i = 1; i<51; i++) {
-			String tmp = "http://review.suning.com/ajax/review_lists/general-000000000154722868-0000000000-total-" +
-					i +
-					"-default-20-----reviewList.htm?callback=reviewList";
+	public String forSave(HttpServletRequest request, Model model){
+    	String from = request.getParameter("from");
+    	String to = request.getParameter("to");
+    	if(null == from || "".equals(from)) {
+    		from = "0";
+    	}
+    	if(null == to || "".equals(to)) {
+    		to = "100";
+    	}
+    	
+    	for(long k=Long.valueOf(from); k<Long.valueOf(to); k++) {
+    		String kstr = String.valueOf(k);
+    		while( "000000000154722868".length() != kstr.length() ) {
+    			kstr = "0" + kstr;
+    		}
+			String tmp = "https://review.suning.com/ajax/review_lists/general-"
+					+ kstr
+					+ "-0000000000-total-tmp-default-20-----reviewList.htm?callback=reviewList";
 			threadPool.executeRequest(tmp);
-		}
+	    	model.addAttribute("uri", tmp);
+    	}
+    	model.addAttribute("from", from);
+    	model.addAttribute("to", to);
 		return "demo/forsave";
 	}
 }

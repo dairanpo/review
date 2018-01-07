@@ -26,7 +26,7 @@ public class ReviewThreadPool {
 	/**
 	 * 线程池
 	 */
-	private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*10);
 	
 	public void executeRequest(String uri) {
 		fixedThreadPool.execute(new RunableTest(uri));
@@ -37,13 +37,14 @@ public class ReviewThreadPool {
 	}
 	
 	private static class RunableTest implements Runnable {
+		private int count = 0;
 		private String uri;
 		
 		public RunableTest(String uri) {
 			this.uri = uri;
 		}
 
-	    private void init() {
+	    private synchronized void init() {
 	    	if(reviewService == null) {
 	    		ApplicationContext ac = ContextLoader.getCurrentWebApplicationContext();
 	    		reviewService = ac.getBean(ReviewService.class);
@@ -51,32 +52,52 @@ public class ReviewThreadPool {
 		}
 	    
 		public void run() {
-			init();
-			logger.error("----"+uri+"----"+Runtime.getRuntime().availableProcessors());
-			String result = HttpUtil.sendGetString(uri);
-			if(result == null) {
-				return;
+			if(reviewService == null) {
+				init();
 			}
-			int from = result.indexOf("(") + 1;
-			int to = result.lastIndexOf(")");
-			JSONObject json = JSONObject.fromObject(result.substring(from, to) );
-			JSONArray arr = json.getJSONArray("commodityReviews");
-			if(null == arr || arr.size()==0) {
-				return;
+			for(int k=1; k<51; k++) {
+				
+				try {
+					synchronized(this) {
+						this.wait(800);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				if(uri.indexOf("tmp") == -1) {
+					k = 51;
+				}
+				String tmp = uri.replace("tmp", String.valueOf(k));
+				String result = HttpUtil.sendGetString(tmp);
+				if(result == null || "".equals(result)) {
+					return;
+				}
+				int from = result.indexOf("(") + 1;
+				int to = result.lastIndexOf(")");
+				JSONArray arr;
+				try {
+					JSONObject json = JSONObject.fromObject(result.substring(from, to) );
+					arr = json.getJSONArray("commodityReviews");
+					logger.info(tmp.substring(60,90) + "==" + result.substring(0,40));
+				} catch (Exception e) {
+					k--;
+					logger.error(tmp.substring(60,90));
+					if((count++) < 100) {
+						continue;
+					} else {
+						logger.error("------------------100--------------------");
+						return;
+					}
+				}
+				if(null == arr || arr.size()==0) {
+					return;
+				}
+		        for(int i=0; i< arr.size(); i++) {
+		        	reviewService.persist(JsonUtil.json2Entity(arr.getString(i), Review.class));
+		        }
 			}
-			for(int i=0; i< arr.size(); i++) {
-				logger.info(arr.getString(0));
-			}
-	        for(int i=0; i< arr.size(); i++) {
-	        	reviewService.persist(JsonUtil.json2Entity(arr.getString(i), Review.class));
-	        }
 		}
-
-//		private <T> void forOut(Collection<T> list) {
-//	        for(T t : list) {
-//	        	logger.info(t.toString());
-//	        }
-//	    }
 	}
 
 }

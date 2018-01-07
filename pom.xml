@@ -191,7 +191,7 @@
 
   </dependencies>
   <build>
-    <finalName>ssm</finalName>
+    <finalName>review-web</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
