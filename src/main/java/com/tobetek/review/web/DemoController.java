@@ -67,5 +67,19 @@ public class DemoController {
     	model.addAttribute("to", to);
 		return "demo/forsave";
 	}
+    @RequestMapping(value="/forsend")
+    public String forSend(HttpServletRequest request, Model model) {
+    	ReviewThreadPool pool = new ReviewThreadPool(1);
+    	long from = 154000000l;
+    	long to = 154000300l;
+    	String uri = "http://127.0.0.1:8080/review-web/demo/forsave?from="
+    			+ String.valueOf(from)
+    			+ "&to="
+    			+ String.valueOf(to);
+    	for(;to < 154500000l; from +=300, to +=300) {
+    		pool.executeRequest(uri , 1000*60);
+    	}
+    	return "demo/forsave";
+    }
 }
 

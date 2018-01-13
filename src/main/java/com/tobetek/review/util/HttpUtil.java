@@ -18,43 +18,6 @@ import org.slf4j.LoggerFactory;
 public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
-    private static CloseableHttpClient httpClient = null;
-    
-    public static synchronized void init() {
-    	if(null == httpClient) {
-    		httpClient = HttpClients.createDefault();
-    	}
-    }
-    /**
-     * 请求URL地址，得到返回的结果内容对象
-     * @param url
-     * @return
-     * @throws IOException
-     */
-    public static CloseableHttpResponse sendGetResponse(String url) throws IOException {
-    	init();
-        return httpClient.execute(new HttpGet(url));
-    }
-
-    /**
-     * 请求URL地址，得到返回的结果内容对象
-     * @param url
-     * @return
-     * @throws IOException
-     */
-    public static HttpEntity sendGetEntity(String url) throws IOException {
-        return sendGetResponse(url).getEntity();
-    }
-
-    /**
-     * 请求URL地址，得到返回的字符串输出流
-     * @param url
-     * @return
-     * @throws IOException
-     */
-    public static InputStream sendGetInputStream(String url) throws IOException {
-        return sendGetEntity(url).getContent();
-    }
     /**
      * 请求URL地址，得到返回的字符串结果
      * @param url
@@ -63,8 +26,14 @@ public class HttpUtil {
     public static String sendGetString(String url) {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = null;
+        CloseableHttpClient client = null;
         try {
-            br = new BufferedReader(new InputStreamReader(sendGetInputStream(url), Charset.forName("utf-8")));
+//        	log.info("------1-----"+url);
+        	client = HttpClients.createDefault();
+//        	log.info("------2-----createDefault");
+        	InputStream in = client.execute(new HttpGet(url)).getEntity().getContent();
+//        	log.info("------3-----client.execute");
+            br = new BufferedReader(new InputStreamReader(in, Charset.forName("utf-8")));
             String tmp;
             while( (tmp = br.readLine()) != null ) {
                 sb.append(tmp).append("\\r\\n");
@@ -73,21 +42,23 @@ public class HttpUtil {
             log.error(e.getMessage());
         } finally {
             closeResources(br);
+            closeResources(client);
         }
         return sb.toString();
     }
     /**
      * 关闭资源
      * @param closeable
+     * @param client 
      * @return
      */
     public static boolean closeResources(Closeable closeable) {
+//    	log.info("------4-closeResources-----"+closeable.getClass().getSimpleName());
         boolean flag = false;
-        if(null == closeable) {
-            return flag;
-        }
         try {
-            closeable.close();
+            if(null != closeable) {
+                closeable.close();
+            }
             flag = true;
         } catch (IOException e) {
             log.error(e.getMessage());

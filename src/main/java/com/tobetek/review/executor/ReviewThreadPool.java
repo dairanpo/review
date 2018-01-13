@@ -26,10 +26,22 @@ public class ReviewThreadPool {
 	/**
 	 * 线程池
 	 */
-	private final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*10);
+	private ExecutorService fixedThreadPool;
 	
+	public ReviewThreadPool() {
+		this(Runtime.getRuntime().availableProcessors());
+	}
+	
+	public ReviewThreadPool(int n) {
+		fixedThreadPool = Executors.newFixedThreadPool(n);
+		
+	}
 	public void executeRequest(String uri) {
 		fixedThreadPool.execute(new RunableTest(uri));
+	}
+
+	public void executeRequest(String uri, long wait) {
+		fixedThreadPool.execute(new RunableTest(uri, wait));
 	}
 
 	public ExecutorService getFixedThreadPool() {
@@ -37,14 +49,20 @@ public class ReviewThreadPool {
 	}
 	
 	private static class RunableTest implements Runnable {
-		private int count = 0;
 		private String uri;
+		private long waitTime;
 		
 		public RunableTest(String uri) {
 			this.uri = uri;
+			this.waitTime = new Double(Math.random()*1000).longValue();
+		}
+		
+		public RunableTest(String uri, long waitTime) {
+			this.uri = uri;
+			this.waitTime = waitTime;
 		}
 
-	    private synchronized void init() {
+	    private static synchronized void init() {
 	    	if(reviewService == null) {
 	    		ApplicationContext ac = ContextLoader.getCurrentWebApplicationContext();
 	    		reviewService = ac.getBean(ReviewService.class);
@@ -55,23 +73,26 @@ public class ReviewThreadPool {
 			if(reviewService == null) {
 				init();
 			}
-			for(int k=1; k<51; k++) {
-				
+			int k = 0;
+			int count = 0;
+			while(true && count<100) {
+				k++;
+				String tmp = uri;
+				if(uri.indexOf("tmp") != -1) {
+					tmp = uri.replace("tmp", String.valueOf(k));
+				} else {
+					count = 500;
+				}
+				String result = HttpUtil.sendGetString(tmp);
 				try {
 					synchronized(this) {
-						this.wait(800);
+						this.wait(waitTime);
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				
-				if(uri.indexOf("tmp") == -1) {
-					k = 51;
-				}
-				String tmp = uri.replace("tmp", String.valueOf(k));
-				String result = HttpUtil.sendGetString(tmp);
 				if(result == null || "".equals(result)) {
-					return;
+					break;
 				}
 				int from = result.indexOf("(") + 1;
 				int to = result.lastIndexOf(")");
@@ -81,17 +102,17 @@ public class ReviewThreadPool {
 					arr = json.getJSONArray("commodityReviews");
 					logger.info(tmp.substring(60,90) + "==" + result.substring(0,40));
 				} catch (Exception e) {
+					logger.info(tmp.substring(60,90) + "$$" + result.substring(0,40));
 					k--;
-					logger.error(tmp.substring(60,90));
 					if((count++) < 100) {
 						continue;
 					} else {
-						logger.error("------------------100--------------------");
-						return;
+						logger.error(tmp.substring(60,90) + "------------------100--------------------");
+						break;
 					}
 				}
 				if(null == arr || arr.size()==0) {
-					return;
+					break;
 				}
 		        for(int i=0; i< arr.size(); i++) {
 		        	reviewService.persist(JsonUtil.json2Entity(arr.getString(i), Review.class));
@@ -99,5 +120,4 @@ public class ReviewThreadPool {
 			}
 		}
 	}
-
 }
